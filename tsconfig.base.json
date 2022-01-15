@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@tick-tack-toe/game-play": ["packages/game-play/src/index.ts"],
       "@tick-tack-toe/types": ["packages/types/src/index.ts"]
     }
   },

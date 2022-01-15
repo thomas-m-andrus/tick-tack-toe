@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "game-play": "packages/game-play",
     "types": "packages/types"
   }
 }
