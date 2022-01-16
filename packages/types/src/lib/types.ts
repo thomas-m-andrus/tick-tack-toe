@@ -1,6 +1,6 @@
 export enum Player {
-  PLAYER_ONE = 1,
-  PLAYER_TWO = 2,
+  ONE = 1,
+  TWO = 2,
 }
 export type Space = Player | undefined;
 export type Row = [Space, Space, Space];

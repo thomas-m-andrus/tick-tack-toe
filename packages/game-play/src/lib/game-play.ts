@@ -24,6 +24,16 @@ export const getTopCoordinates = (move: Coordinate): Coordinate => {
 export const getBottomCoordinates = (move: Coordinate): Coordinate => {
   return [move[0] + 1, move[1]];
 };
+/**
+ * From a starting point, this function pings it's directions until it
+ * hits the boundaries or it encounters a square not similar to it's
+ * starting point
+ * @param lastMove
+ * @param game
+ * @param getIncreasePosition
+ * @param getDecreasePosition
+ * @returns
+ */
 export const pingCollection = (
   lastMove: Coordinate,
   game: Game,
@@ -55,6 +65,10 @@ export const pingCollection = (
   }
   return ping;
 };
+export const boardFilled = (game: Game) => {
+  const filled = game.map((row) => row.every((space) => space !== undefined));
+  return filled.every((row) => row);
+};
 export const checkWin = (lastMove: Coordinate, game: Game) => {
   const [row, col] = lastMove;
   const player = game[row][col];
@@ -71,6 +85,11 @@ export const checkWin = (lastMove: Coordinate, game: Game) => {
         up: getTopRightCoordinates,
         down: getBottomLeftCoordinates,
       },
+      {
+        key: 'horizontal',
+        up: getLeftCoordinates,
+        down: getRightCoordinates,
+      },
     ].reduce(
       (acc, { key, up, down }) => {
         const possibleAddition = pingCollection(lastMove, game, up, down);
@@ -84,7 +103,15 @@ export const checkWin = (lastMove: Coordinate, game: Game) => {
       },
       { player, coordinates: {} }
     );
-    return result;
+    const winnerExists = Object.values(result.coordinates).some(
+      (val) => val !== undefined
+    );
+    if (winnerExists) {
+      return result;
+    } else {
+      const catsGame = boardFilled(game);
+      return catsGame ? -1 : undefined;
+    }
   } else {
     return undefined;
   }

@@ -1,4 +1,4 @@
-import { Player } from '@tick-tack-toe/types';
+import { Player, Game, Row } from '@tick-tack-toe/types';
 import {
   checkWin,
   getTopLeftCoordinates,
@@ -171,99 +171,167 @@ describe('Coordinate Functions', () => {
   });
 });
 describe('checkWin', () => {
-  it.each([
-    [0, 0],
-    [1, 0],
-    [2, 0],
-  ])(
-    'should return player winning vertical and coordinates when winning game passed in with [%s,%s] as last move.',
-    (y, x) => {
-      expect(
-        checkWin(
-          [y, x],
-          [
-            [Player.PLAYER_ONE, undefined, undefined],
-            [Player.PLAYER_ONE, undefined, undefined],
-            [Player.PLAYER_ONE, undefined, undefined],
-          ]
-        )
-      ).toEqual({
-        player: Player.PLAYER_ONE,
-        coordinates: {
-          vertical: [
-            [0, 0],
-            [1, 0],
-            [2, 0],
-          ],
-          horizontal: undefined,
-          toBottomRight: undefined,
-          toTopRight: undefined,
-        },
-      });
-    }
-  );
-  it.each([
-    [0, 0],
-    [1, 1],
-    [2, 2],
-  ])(
-    'should return player winning diagonally going down and coordinates when winning game passed in with [%s,%s] as last move.',
-    (y, x) => {
-      console.log(`I am running with [${y},${x}]`);
-      expect(
-        checkWin(
-          [y, x],
-          [
-            [Player.PLAYER_ONE, undefined, undefined],
-            [undefined, Player.PLAYER_ONE, undefined],
-            [undefined, undefined, Player.PLAYER_ONE],
-          ]
-        )
-      ).toEqual({
-        player: Player.PLAYER_ONE,
-        coordinates: {
-          toBottomRight: [
-            [0, 0],
-            [1, 1],
-            [2, 2],
-          ],
-          horizontal: undefined,
-          vertical: undefined,
-          toTopRight: undefined,
-        },
-      });
-    }
-  );
-  it.each([
-    [0, 2],
-    [1, 1],
-    [2, 0],
-  ])(
-    'should return player winning diagonally going up and coordinates when winning game passed in with [%s,%s] as last move.',
-    (y, x) => {
-      console.log(`I am running with [${y},${x}]`);
-      expect(
-        checkWin(
-          [y, x],
-          [
-            [undefined, undefined, Player.PLAYER_ONE],
-            [undefined, Player.PLAYER_ONE, undefined],
-            [Player.PLAYER_ONE, undefined, undefined],
-          ]
-        )
-      ).toEqual({
-        player: Player.PLAYER_ONE,
-        coordinates: {
-          toBottomRight: undefined,
-          horizontal: undefined,
-          vertical: undefined,
-          toTopRight: [
-            [0, 2],
-            [1, 1],
-            [2, 0],
-          ],
-        },
-      });
-    }
-  );
+  describe('Winning Combinations', () => {
+    it.each([
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ])(
+      'should return player winning vertical and coordinates when winning game passed in with [%s,%s] as last move.',
+      (y, x) => {
+        expect(
+          checkWin(
+            [y, x],
+            [
+              [Player.ONE, undefined, undefined],
+              [Player.ONE, undefined, undefined],
+              [Player.ONE, undefined, undefined],
+            ]
+          )
+        ).toEqual({
+          player: Player.ONE,
+          coordinates: {
+            vertical: [
+              [0, 0],
+              [1, 0],
+              [2, 0],
+            ],
+            horizontal: undefined,
+            toBottomRight: undefined,
+            toTopRight: undefined,
+          },
+        });
+      }
+    );
+    it.each([
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ])(
+      'should return player winning diagonally going down and coordinates when winning game passed in with [%s,%s] as last move.',
+      (y, x) => {
+        expect(
+          checkWin(
+            [y, x],
+            [
+              [Player.ONE, undefined, undefined],
+              [undefined, Player.ONE, undefined],
+              [undefined, undefined, Player.ONE],
+            ]
+          )
+        ).toEqual({
+          player: Player.ONE,
+          coordinates: {
+            toBottomRight: [
+              [0, 0],
+              [1, 1],
+              [2, 2],
+            ],
+            horizontal: undefined,
+            vertical: undefined,
+            toTopRight: undefined,
+          },
+        });
+      }
+    );
+    it.each([
+      [0, 2],
+      [1, 1],
+      [2, 0],
+    ])(
+      'should return player winning diagonally going up and coordinates when winning game passed in with [%s,%s] as last move.',
+      (y, x) => {
+        expect(
+          checkWin(
+            [y, x],
+            [
+              [undefined, undefined, Player.ONE],
+              [undefined, Player.ONE, undefined],
+              [Player.ONE, undefined, undefined],
+            ]
+          )
+        ).toEqual({
+          player: Player.ONE,
+          coordinates: {
+            toBottomRight: undefined,
+            horizontal: undefined,
+            vertical: undefined,
+            toTopRight: [
+              [0, 2],
+              [1, 1],
+              [2, 0],
+            ],
+          },
+        });
+      }
+    );
+    it.each([
+      [1, 0],
+      [1, 1],
+      [1, 2],
+    ])(
+      'should return player winning horizontally going up and coordinates when winning game passed in with [%s,%s] as last move.',
+      (y, x) => {
+        expect(
+          checkWin(
+            [y, x],
+            [
+              [undefined, undefined, undefined],
+              [Player.ONE, Player.ONE, Player.ONE],
+              [undefined, undefined, undefined],
+            ]
+          )
+        ).toEqual({
+          player: Player.ONE,
+          coordinates: {
+            toBottomRight: undefined,
+            horizontal: [
+              [1, 0],
+              [1, 1],
+              [1, 2],
+            ],
+            vertical: undefined,
+            toTopRight: undefined,
+          },
+        });
+      }
+    );
+  });
+  const everySpace = [0, 1, 2].reduce((acc, row) => {
+    const batch = [0, 1, 2].map((col) => {
+      return [row, col];
+    });
+    return [...acc, ...batch];
+  }, []);
+  describe('On going Combinations', () => {
+    it.each(everySpace)(
+      'should return undefined when the last move is [%s,%s] and all the spaces are undefined',
+      (row, col) => {
+        const emptyRow: Row = new Array(3).fill(undefined) as Row;
+        const game: Game = new Array(3).fill(emptyRow) as Game;
+        expect(checkWin([row, col], game)).toBe(undefined);
+      }
+    );
+    it('should return undefined when board is surrounded by the other player and undefineds.', () => {
+      const game: Game = [
+        [undefined, Player.TWO, undefined],
+        [Player.TWO, Player.ONE, Player.TWO],
+        [undefined, Player.TWO, undefined],
+      ];
+      expect(checkWin([1, 1], game)).toBe(undefined);
+    });
+  });
+  describe('Draw Scenario', () => {
+    it.each(everySpace)(
+      'should return -1 if all squares are filled with no winner and last square was [%s,%s]',
+      (row, col) => {
+        const game: Game = [
+          [Player.TWO, Player.TWO, Player.ONE],
+          [Player.ONE, Player.ONE, Player.TWO],
+          [Player.TWO, Player.ONE, Player.ONE],
+        ];
+        expect(checkWin([row, col], game)).toBe(-1);
+      }
+    );
+  });
 });
